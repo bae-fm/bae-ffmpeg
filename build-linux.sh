@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ARCH="${1:-$(uname -m)}"
-FFMPEG_VERSION="${FFMPEG_VERSION:-7.1.1}"
+FFMPEG_VERSION="${FFMPEG_VERSION:-8.0.1}"
 
 echo "Building FFmpeg $FFMPEG_VERSION for Linux $ARCH"
 
@@ -44,8 +44,7 @@ cd "ffmpeg-$FFMPEG_VERSION"
     --disable-programs \
     --disable-doc \
     --disable-swscale \
-    --disable-postproc \
-    --disable-avfilter \
+        --disable-avfilter \
     --disable-avdevice \
     --disable-network \
     --disable-everything \
