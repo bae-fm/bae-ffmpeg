@@ -25,6 +25,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install dependencies
+        run: brew install nasm
+
       - name: Build FFmpeg
         run: ./build-macos.sh ${{ matrix.arch }}
 
@@ -77,6 +80,7 @@ jobs:
             mingw-w64-x86_64-pkg-config
             make
             diffutils
+            zip
 
       - name: Build FFmpeg
         shell: msys2 {0}

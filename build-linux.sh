@@ -14,12 +14,12 @@ if [[ "$ARCH" == "aarch64" && "$(uname -m)" != "aarch64" ]]; then
         -w /work \
         -e FFMPEG_VERSION="$FFMPEG_VERSION" \
         ubuntu:22.04 \
-        bash -c "apt-get update && apt-get install -y build-essential curl xz-utils pkg-config && ./build-linux.sh aarch64"
+        bash -c "apt-get update && apt-get install -y build-essential curl xz-utils pkg-config nasm && ./build-linux.sh aarch64"
     exit 0
 fi
 
-# Install build dependencies
-if command -v apt-get &>/dev/null; then
+# Install build dependencies (skip if inside Docker - already installed)
+if command -v apt-get &>/dev/null && [[ ! -f /.dockerenv ]]; then
     sudo apt-get update
     sudo apt-get install -y build-essential nasm pkg-config
 fi
