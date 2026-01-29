@@ -60,7 +60,9 @@ cd "$PREFIX"
 # we replace every reference under $PREFIX/lib/ with @rpath/<name>.
 rewrite_deps() {
     local target="$1"
-    otool -L "$target" | tail -n +2 | awk '{print $1}' | grep "^$PREFIX/lib/" | while read -r dep_path; do
+    local deps
+    deps=$(otool -L "$target" | tail -n +2 | awk '{print $1}' | grep "^$PREFIX/lib/" || true)
+    for dep_path in $deps; do
         local dep_name
         dep_name=$(basename "$dep_path")
         install_name_tool -change "$dep_path" "@rpath/$dep_name" "$target"
