@@ -32,16 +32,16 @@ cd "ffmpeg-$FFMPEG_VERSION"
     --disable-doc \
     \
     --disable-swscale             `# video scaling -- audio only` \
-    --disable-avdevice            `# hardware devices -- not used` \
     --disable-network             `# no streaming support needed` \
     --disable-everything          `# start from zero, enable only what we need` \
     \
     --enable-protocol=file \
-    --enable-demuxer=mp3,flac,ape,wav,aiff,caf,lavfi  `# lavfi: virtual input for test fixture generation` \
+    --enable-demuxer=mp3,flac,ape,wav,aiff,caf \
     --enable-decoder=mp3,mp3float,flac,ape,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le,pcm_alaw,pcm_mulaw \
     --enable-parser=mpegaudio,flac \
     --enable-encoder=flac,pcm_s16le,pcm_s24le         `# encoding for CD rip (FLAC) and WAV export` \
     --enable-muxer=flac,wav \
+    --enable-indev=lavfi                               `# virtual input device for test fixture generation` \
     --enable-filter=anoisesrc,aformat,anull,abuffer,abuffersink  `# test fixtures: generate noise as FLAC` \
     \
     --enable-shared \
