@@ -59,7 +59,7 @@ cd "ffmpeg-$FFMPEG_VERSION"
     --enable-encoder=flac,pcm_s16le,pcm_s24le          `# encoding for CD rip (FLAC) and WAV export` \
     --enable-muxer=flac,wav \
     --enable-indev=lavfi                                `# virtual input device for test fixture generation` \
-    --enable-filter=anoisesrc,aformat,anull,abuffer,abuffersink  `# test fixtures: generate noise as FLAC` \
+    --enable-filter=anoisesrc,aformat,anull,aresample,abuffer,abuffersink  `# test fixtures: generate noise as FLAC` \
     \
     --enable-shared \
     --disable-static \
