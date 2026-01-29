@@ -38,22 +38,29 @@ fi
 
 cd "ffmpeg-$FFMPEG_VERSION"
 
-# Configure for audio-only with minimal footprint
+# Audio-only FFmpeg with minimal footprint.
+# bae is an audio app -- no video codecs, filters, or devices needed.
 ./configure \
     --prefix="$PREFIX" \
-    --disable-programs \
+    \
+    --enable-ffmpeg               `# CLI binary for generating test fixtures` \
+    --disable-ffplay              `# not needed` \
+    --disable-ffprobe             `# not needed` \
     --disable-doc \
-    --disable-swscale \
-        --disable-avfilter \
-    --disable-avdevice \
-    --disable-network \
-    --disable-everything \
+    \
+    --disable-swscale             `# video scaling -- audio only` \
+    --disable-avdevice            `# hardware devices -- not used` \
+    --disable-network             `# no streaming support needed` \
+    --disable-everything          `# start from zero, enable only what we need` \
+    \
     --enable-protocol=file \
-    --enable-demuxer=mp3,flac,ape,wav,aiff \
+    --enable-demuxer=mp3,flac,ape,wav,aiff,lavfi       `# lavfi: virtual input for test fixture generation` \
     --enable-decoder=mp3,mp3float,flac,ape,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le,pcm_alaw,pcm_mulaw \
     --enable-parser=mpegaudio,flac \
-    --enable-encoder=flac,pcm_s16le,pcm_s24le \
+    --enable-encoder=flac,pcm_s16le,pcm_s24le          `# encoding for CD rip (FLAC) and WAV export` \
     --enable-muxer=flac,wav \
+    --enable-filter=anoisesrc,aformat,anull,abuffer,abuffersink  `# test fixtures: generate noise as FLAC` \
+    \
     --enable-shared \
     --disable-static \
     --enable-pic \
@@ -72,7 +79,12 @@ for so in lib/*.so*; do
     fi
 done
 
-tar czf "$DIST/ffmpeg-linux-$ARCH.tar.gz" include lib
+# Set RPATH on ffmpeg binary
+if [[ -f bin/ffmpeg ]]; then
+    patchelf --set-rpath '$ORIGIN/../lib' bin/ffmpeg 2>/dev/null || true
+fi
+
+tar czf "$DIST/ffmpeg-linux-$ARCH.tar.gz" bin include lib
 
 echo "Built: $DIST/ffmpeg-linux-$ARCH.tar.gz"
 ls -lh "$DIST/ffmpeg-linux-$ARCH.tar.gz"
