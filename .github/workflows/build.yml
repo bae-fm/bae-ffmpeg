@@ -38,20 +38,28 @@ jobs:
           path: dist/ffmpeg-macos-${{ matrix.arch }}.tar.gz
 
   build-linux:
-    name: Build Linux (x86_64)
+    name: Build Linux (${{ matrix.arch }})
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [x86_64, aarch64]
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set up QEMU
+        if: matrix.arch == 'aarch64'
+        uses: docker/setup-qemu-action@v3
+
       - name: Build FFmpeg
-        run: ./build-linux.sh x86_64
+        run: ./build-linux.sh ${{ matrix.arch }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ffmpeg-linux-x86_64
-          path: dist/ffmpeg-linux-x86_64.tar.gz
+          name: ffmpeg-linux-${{ matrix.arch }}
+          path: dist/ffmpeg-linux-${{ matrix.arch }}.tar.gz
 
   build-windows:
     name: Build Windows (x86_64)
