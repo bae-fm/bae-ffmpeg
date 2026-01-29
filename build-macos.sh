@@ -55,33 +55,29 @@ make install
 # Create distribution tarball
 cd "$PREFIX"
 
-# Set install names to @rpath for bundling
+# Rewrite all dylib paths to @rpath so libraries are relocatable.
+# FFmpeg bakes absolute build-directory paths into inter-library references;
+# we replace every reference under $PREFIX/lib/ with @rpath/<name>.
+rewrite_deps() {
+    local target="$1"
+    otool -L "$target" | tail -n +2 | awk '{print $1}' | grep "^$PREFIX/lib/" | while read -r dep_path; do
+        local dep_name
+        dep_name=$(basename "$dep_path")
+        install_name_tool -change "$dep_path" "@rpath/$dep_name" "$target"
+    done
+}
+
 for dylib in lib/*.dylib; do
     if [[ -f "$dylib" && ! -L "$dylib" ]]; then
         install_name_tool -id "@rpath/$(basename "$dylib")" "$dylib"
-
-        # Update references to other FFmpeg libs
-        for dep in lib/*.dylib; do
-            if [[ -f "$dep" && ! -L "$dep" ]]; then
-                dep_name=$(basename "$dep")
-                otool -L "$dylib" | grep -q "$dep_name" && \
-                    install_name_tool -change "$PREFIX/lib/$dep_name" "@rpath/$dep_name" "$dylib" || true
-            fi
-        done
+        rewrite_deps "$dylib"
     fi
 done
 
 # Set rpath on the ffmpeg binary so it finds libs relative to itself
 if [[ -f bin/ffmpeg ]]; then
     install_name_tool -add_rpath "@executable_path/../lib" bin/ffmpeg
-    # Update references to FFmpeg libs
-    for dep in lib/*.dylib; do
-        if [[ -f "$dep" && ! -L "$dep" ]]; then
-            dep_name=$(basename "$dep")
-            otool -L bin/ffmpeg | grep -q "$dep_name" && \
-                install_name_tool -change "$PREFIX/lib/$dep_name" "@rpath/$dep_name" bin/ffmpeg || true
-        fi
-    done
+    rewrite_deps bin/ffmpeg
 fi
 
 tar czf "$DIST/ffmpeg-macos-$ARCH.tar.gz" bin include lib
