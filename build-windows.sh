@@ -38,7 +38,7 @@ cd "ffmpeg-$FFMPEG_VERSION"
     \
     --enable-protocol=file \
     --enable-demuxer=mp3,flac,ape,wav,aiff \
-    --enable-decoder=mp3,mp3float,flac,ape,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le,pcm_alaw,pcm_mulaw \
+    --enable-decoder=mp3,mp3float,flac,ape,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le,pcm_f64le,pcm_alaw,pcm_mulaw \
     --enable-parser=mpegaudio,flac \
     --enable-encoder=flac,pcm_s16le,pcm_s24le          `# encoding for CD rip (FLAC) and WAV export` \
     --enable-muxer=flac,wav \
