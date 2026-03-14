@@ -48,7 +48,8 @@ cd "ffmpeg-$FFMPEG_VERSION"
     --enable-shared \
     --disable-static \
     --enable-pic \
-    --extra-cflags="-O2"
+    --extra-cflags="-O2 -I$(brew --prefix)/include" \
+    --extra-ldflags="-L$(brew --prefix)/lib"
 
 make -j"$(sysctl -n hw.ncpu)"
 make install
