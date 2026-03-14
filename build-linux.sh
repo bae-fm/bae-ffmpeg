@@ -14,14 +14,14 @@ if [[ "$ARCH" == "aarch64" && "$(uname -m)" != "aarch64" ]]; then
         -w /work \
         -e FFMPEG_VERSION="$FFMPEG_VERSION" \
         ubuntu:22.04 \
-        bash -c "apt-get update && apt-get install -y build-essential curl xz-utils pkg-config nasm && ./build-linux.sh aarch64"
+        bash -c "apt-get update && apt-get install -y build-essential curl xz-utils pkg-config nasm libmp3lame-dev && ./build-linux.sh aarch64"
     exit 0
 fi
 
 # Install build dependencies (skip if inside Docker - already installed)
 if command -v apt-get &>/dev/null && [[ ! -f /.dockerenv ]]; then
     sudo apt-get update
-    sudo apt-get install -y build-essential nasm pkg-config
+    sudo apt-get install -y build-essential nasm pkg-config libmp3lame-dev
 fi
 
 WORKDIR="$(pwd)/build"
@@ -56,8 +56,9 @@ cd "ffmpeg-$FFMPEG_VERSION"
     --enable-demuxer=mp3,flac,ape,wav,aiff \
     --enable-decoder=mp3,mp3float,flac,ape,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le,pcm_f64le,pcm_alaw,pcm_mulaw \
     --enable-parser=mpegaudio,flac \
-    --enable-encoder=flac,pcm_s16le,pcm_s24le          `# encoding for CD rip (FLAC) and WAV export` \
-    --enable-muxer=flac,wav \
+    --enable-encoder=flac,pcm_s16le,pcm_s24le,libmp3lame  `# encoding for CD rip (FLAC), WAV export, MP3 test fixtures` \
+    --enable-muxer=flac,wav,mp3 \
+    --enable-libmp3lame \
     --enable-indev=lavfi                                `# virtual input device for test fixture generation` \
     --enable-filter=anoisesrc,aformat,anull,aresample,abuffer,abuffersink  `# test fixtures: generate noise as FLAC` \
     \
