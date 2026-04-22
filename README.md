@@ -5,9 +5,9 @@ Minimal audio-only FFmpeg builds for [bae](https://github.com/bae-fm/bae).
 ## What's included
 
 Audio codecs only:
-- **Decoders**: MP3, FLAC, APE, WAV/PCM
+- **Decoders**: MP3, FLAC, APE, ALAC, AAC, WAV/PCM
 - **Encoders**: FLAC, PCM (for CD ripping)
-- **Demuxers**: MP3, FLAC, APE, WAV, AIFF, CAF
+- **Demuxers**: MP3, FLAC, APE, WAV, MP4
 - **Muxers**: FLAC, WAV
 - **Filters**: `anoisesrc`, `aformat`, `anull`, `aresample` (for test fixture generation)
 - **CLI**: `ffmpeg` binary included (for generating test fixtures)
