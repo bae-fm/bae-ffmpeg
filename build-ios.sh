@@ -1,8 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 
-FFMPEG_VERSION="${FFMPEG_VERSION:-8.0.1}"
-MIN_IOS="17.0"
+FFMPEG_VERSION="${FFMPEG_VERSION:-8.1.2}"
+# 16.0 is bae's iOS deployment floor: the app links these static libs directly,
+# so their minos must be <= the app target. A higher floor here makes the app
+# linker reach for runtime symbols the SDK only vends for the negotiated minimum.
+MIN_IOS="16.0"
 
 echo "Building FFmpeg $FFMPEG_VERSION for iOS (device + simulator)"
 
@@ -30,8 +33,8 @@ COMMON_FLAGS=(
     --disable-everything              # start from zero, enable only what we need
 
     --enable-protocol=file
-    --enable-demuxer=mp3,flac,ape,wav,mov
-    --enable-decoder=mp3,mp3float,flac,ape,alac,aac,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le,pcm_f64le,pcm_alaw,pcm_mulaw
+    --enable-demuxer=mp3,flac,ape,wav,mov,ipod,ogg,aiff
+    --enable-decoder=mp3,mp3float,flac,ape,alac,aac,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le,pcm_f64le,pcm_alaw,pcm_mulaw,pcm_u8,pcm_s16be,pcm_s24be,pcm_s32be
     --enable-parser=mpegaudio,flac,aac
     --enable-encoder=flac,pcm_s16le,pcm_s24le
     --enable-muxer=flac,wav

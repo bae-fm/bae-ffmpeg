@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ARCH="${1:-$(uname -m)}"
-FFMPEG_VERSION="${FFMPEG_VERSION:-8.0.1}"
+FFMPEG_VERSION="${FFMPEG_VERSION:-8.1.2}"
 
 echo "Building FFmpeg $FFMPEG_VERSION for macOS $ARCH"
 
@@ -36,8 +36,8 @@ cd "ffmpeg-$FFMPEG_VERSION"
     --disable-everything          `# start from zero, enable only what we need` \
     \
     --enable-protocol=file \
-    --enable-demuxer=mp3,flac,ape,wav,mov \
-    --enable-decoder=mp3,mp3float,flac,ape,alac,aac,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le,pcm_f64le,pcm_alaw,pcm_mulaw \
+    --enable-demuxer=mp3,flac,ape,wav,mov,ipod,ogg,aiff \
+    --enable-decoder=mp3,mp3float,flac,ape,alac,aac,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le,pcm_f64le,pcm_alaw,pcm_mulaw,pcm_u8,pcm_s16be,pcm_s24be,pcm_s32be \
     --enable-parser=mpegaudio,flac,aac \
     --enable-encoder=flac,pcm_s16le,pcm_s24le,libmp3lame  `# encoding for CD rip (FLAC), WAV export, MP3 test fixtures` \
     --enable-muxer=flac,wav,mp3 \
