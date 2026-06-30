@@ -88,6 +88,18 @@ build_target() {
     make -j"$(sysctl -n hw.ncpu)"
     make install
 
+    # Make pkg-config relocatable: FFmpeg bakes this build machine's absolute
+    # paths into prefix/libdir/includedir. Resolve prefix from each .pc file's
+    # own location (${pcfiledir}) and derive libdir/includedir from it, so the
+    # libs work wherever the tarball is extracted. (No `sed -i`: BSD/GNU/MSYS2
+    # differ.)
+    for pc in "$prefix"/lib/pkgconfig/*.pc; do
+        sed -e 's,^prefix=.*,prefix=${pcfiledir}/../..,' \
+            -e 's,^libdir=.*,libdir=${prefix}/lib,' \
+            -e 's,^includedir=.*,includedir=${prefix}/include,' "$pc" > "$pc.tmp" \
+            && mv "$pc.tmp" "$pc"
+    done
+
     # Package: include + lib (static .a files only)
     cd "$prefix"
     local tarball="$DIST/ffmpeg-$label.tar.gz"

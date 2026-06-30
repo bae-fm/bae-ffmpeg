@@ -70,6 +70,18 @@ cd "ffmpeg-$FFMPEG_VERSION"
 make -j"$(nproc)"
 make install
 
+# Make pkg-config relocatable: FFmpeg bakes this build machine's absolute paths
+# into prefix/libdir/includedir, so the .pc is dead on any other machine. Resolve
+# prefix from each .pc file's own location (${pcfiledir}) and derive libdir/
+# includedir from it, so the libs work wherever the tarball is extracted. (No
+# `sed -i`: its syntax differs across BSD/GNU/MSYS2.)
+for pc in "$PREFIX"/lib/pkgconfig/*.pc; do
+    sed -e 's,^prefix=.*,prefix=${pcfiledir}/../..,' \
+        -e 's,^libdir=.*,libdir=${prefix}/lib,' \
+        -e 's,^includedir=.*,includedir=${prefix}/include,' "$pc" > "$pc.tmp" \
+        && mv "$pc.tmp" "$pc"
+done
+
 # Create distribution tarball
 cd "$PREFIX"
 
