@@ -16,9 +16,12 @@ DIST="$SCRIPT_DIR/dist"
 mkdir -p "$WORKDIR" "$DIST"
 cd "$WORKDIR"
 
-# Download FFmpeg source
-if [[ ! -d "ffmpeg-$FFMPEG_VERSION" ]]; then
-    curl -L "https://ffmpeg.org/releases/ffmpeg-$FFMPEG_VERSION.tar.xz" | tar xJ
+# Download the FFmpeg source tarball. Kept as the immutable archive; each target
+# extracts its own pristine copy from it (below), so no build state can leak
+# between the device and simulator builds.
+SRC_TARBALL="$WORKDIR/ffmpeg-$FFMPEG_VERSION.tar.xz"
+if [[ ! -f "$SRC_TARBALL" ]]; then
+    curl -L "https://ffmpeg.org/releases/ffmpeg-$FFMPEG_VERSION.tar.xz" -o "$SRC_TARBALL"
 fi
 
 # Audio-only FFmpeg with minimal footprint.
@@ -56,19 +59,23 @@ build_target() {
     sysroot="$(xcrun --sdk "$sdk" --show-sdk-path)"
 
     local prefix="$WORKDIR/install-$label"
-    local src="$WORKDIR/ffmpeg-$FFMPEG_VERSION"
+    # A pristine source per target, extracted fresh from the immutable tarball.
+    # Device and simulator build in the same in-tree layout (FFmpeg's configure
+    # has no clean out-of-tree build), and `make distclean` leaves some generated
+    # objects behind (e.g. alac_data.o), so a shared or copied-from-built tree
+    # would link stale objects into the wrong archive -- a mixed .a the app linker
+    # rejects ("built for 'iOS'"). Extracting per target guarantees no build state
+    # leaks between device and simulator.
+    local src="$WORKDIR/ffmpeg-$FFMPEG_VERSION-$label"
+    rm -rf "$src"
+    mkdir -p "$src"
+    tar xJf "$SRC_TARBALL" -C "$src" --strip-components=1
 
     echo ""
     echo "=== Building for $label (sdk=$sdk) ==="
     echo ""
 
-    # Clean previous build artifacts from the source tree.
-    # FFmpeg's configure doesn't support out-of-tree builds cleanly,
-    # so we clean between targets.
     cd "$src"
-    if [[ -f config.mak ]]; then
-        make distclean || true
-    fi
 
     ./configure \
         --prefix="$prefix" \
