@@ -76,7 +76,6 @@ build_arch() {
         --disable-swscale             `# video scaling -- audio only` \
         --disable-avdevice \
         --disable-avfilter \
-        --disable-postproc \
         --disable-network             `# no streaming support needed` \
         --disable-everything          `# start from zero, enable only what we need` \
         \
