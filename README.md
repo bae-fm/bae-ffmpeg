@@ -5,9 +5,9 @@ Minimal audio-only FFmpeg builds for [bae](https://github.com/bae-fm/bae).
 ## What's included
 
 Audio codecs only:
-- **Decoders**: MP3, FLAC, APE, ALAC, AAC, WAV/PCM
+- **Decoders**: MP3, FLAC, APE, ALAC, AAC, Opus, Vorbis, WavPack, DSD, WAV/AIFF PCM
 - **Encoders**: FLAC, PCM (for CD ripping)
-- **Demuxers**: MP3, FLAC, APE, WAV, MP4/M4A, Ogg, AIFF
+- **Demuxers**: MP3, FLAC, APE, WAV, MP4/M4A, Ogg, AIFF, WavPack, DSF, DFF
 - **Muxers**: FLAC, WAV
 - **Filters**: `anoisesrc`, `aformat`, `anull`, `aresample` (for test fixture generation)
 - **CLI**: `ffmpeg` binary included (for generating test fixtures)
@@ -37,7 +37,7 @@ FFmpeg anywhere.
 ```yaml
 - name: Download bae-ffmpeg
   run: |
-    curl -L https://github.com/bae-fm/bae-ffmpeg/releases/download/v8.1.2-bae1/ffmpeg-macos-arm64.tar.gz | \
+    curl -L https://github.com/bae-fm/bae-ffmpeg/releases/download/v8.1.2-bae4/ffmpeg-macos-arm64.tar.gz | \
       tar xz -C /opt/bae-ffmpeg
     echo "FFMPEG_DIR=/opt/bae-ffmpeg" >> $GITHUB_ENV
     echo "PKG_CONFIG_PATH=/opt/bae-ffmpeg/lib/pkgconfig" >> $GITHUB_ENV
@@ -66,11 +66,11 @@ Output goes to `dist/`.
 
 ## Releasing
 
-Push a tag like `v8.1.2-bae1` to trigger a build and release:
+Push a tag like `v8.1.2-bae4` to trigger a build and release:
 
 ```bash
-git tag v8.1.2-bae1
-git push origin v8.1.2-bae1
+git tag v8.1.2-bae4
+git push origin v8.1.2-bae4
 ```
 
 The version scheme is `v{ffmpeg_version}-bae{revision}`. The release CI builds
