@@ -39,9 +39,10 @@ cd "ffmpeg-$FFMPEG_VERSION"
     --enable-demuxer=mp3,flac,ape,wav,mov,ipod,ogg,aiff,wv,dsf,iff \
     --enable-decoder=mp3,mp3float,flac,ape,alac,aac,opus,vorbis,wavpack,dsd_lsbf,dsd_msbf,dsd_lsbf_planar,dsd_msbf_planar,pcm_s16le,pcm_s24le,pcm_s32le,pcm_f32le,pcm_f64le,pcm_alaw,pcm_mulaw,pcm_u8,pcm_s16be,pcm_s24be,pcm_s32be \
     --enable-parser=mpegaudio,flac,aac,opus,vorbis \
-    --enable-encoder=flac,pcm_s16le,pcm_s24le,libmp3lame  `# encoding for CD rip (FLAC), WAV export, MP3 test fixtures` \
-    --enable-muxer=flac,wav,mp3 \
+    --enable-encoder=flac,pcm_s16le,pcm_s24le,libmp3lame,libopus  `# encoding for CD rip, track export, and test fixtures` \
+    --enable-muxer=flac,wav,mp3,ogg \
     --enable-libmp3lame \
+    --enable-libopus \
     --enable-indev=lavfi                               `# virtual input device for test fixture generation` \
     --enable-filter=anoisesrc,aformat,anull,aresample,abuffer,abuffersink  `# test fixtures: generate noise as FLAC` \
     \
