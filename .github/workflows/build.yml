@@ -26,7 +26,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install dependencies
-        run: brew install nasm lame opus
+        # nasm only: FFmpeg's x86 asm and lame's asm need it. lame and opus are
+        # built from source as static libs inside build-macos.sh so the artifact
+        # bundles them and imports no Homebrew dylib.
+        run: brew install nasm
 
       - name: Build FFmpeg
         run: ./build-macos.sh ${{ matrix.arch }}
