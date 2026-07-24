@@ -94,6 +94,27 @@ jobs:
           name: ffmpeg-windows-x86_64
           path: dist/ffmpeg-windows-x86_64.zip
 
+  build-windows-arm64:
+    name: Build Windows (aarch64)
+    # Cross-compiled on Linux with llvm-mingw (classic mingw-w64 has no usable
+    # aarch64 target). Deps are bundled static, so the artifact is self-contained
+    # -- unlike the x86_64 build, whose mingw runtime DLLs the consumer supplies
+    # from MSYS2.
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build FFmpeg
+        run: ./build-windows-arm64.sh
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ffmpeg-windows-aarch64
+          path: dist/ffmpeg-windows-aarch64.zip
+
   build-ios:
     name: Build iOS (device + simulator)
     runs-on: macos-14
@@ -130,7 +151,7 @@ jobs:
 
   release:
     name: Create Release
-    needs: [build-macos, build-linux, build-windows, build-ios, build-android]
+    needs: [build-macos, build-linux, build-windows, build-windows-arm64, build-ios, build-android]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
     permissions:

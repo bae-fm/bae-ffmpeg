@@ -23,6 +23,7 @@ Everything else is disabled (video codecs, video filters, network protocols, etc
 | Linux | x86_64 | .tar.gz |
 | Linux | aarch64 | .tar.gz |
 | Windows | x86_64 | .zip |
+| Windows | aarch64 | .zip |
 | iOS | arm64 (device) | .tar.gz |
 | iOS | arm64 (simulator) | .tar.gz |
 | Android | arm64 | .tar.gz |
@@ -52,8 +53,11 @@ FFmpeg anywhere.
 # Linux
 ./build-linux.sh x86_64  # or aarch64
 
-# Windows (MSYS2)
+# Windows x86_64 (MSYS2, native)
 ./build-windows.sh
+
+# Windows aarch64 (llvm-mingw, cross-compiled from Linux; deps bundled static)
+./build-windows-arm64.sh
 
 # iOS (device + simulator)
 ./build-ios.sh
