@@ -62,58 +62,30 @@ jobs:
           path: dist/ffmpeg-linux-${{ matrix.arch }}.tar.gz
 
   build-windows:
-    name: Build Windows (x86_64)
-    runs-on: windows-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup MSYS2
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: MINGW64
-          update: true
-          install: >-
-            mingw-w64-x86_64-toolchain
-            mingw-w64-x86_64-nasm
-            mingw-w64-x86_64-pkg-config
-            mingw-w64-x86_64-lame
-            mingw-w64-x86_64-opus
-            make
-            diffutils
-            zip
-
-      - name: Build FFmpeg
-        shell: msys2 {0}
-        run: ./build-windows.sh
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ffmpeg-windows-x86_64
-          path: dist/ffmpeg-windows-x86_64.zip
-
-  build-windows-arm64:
-    name: Build Windows (aarch64)
-    # Cross-compiled on Linux with llvm-mingw (classic mingw-w64 has no usable
-    # aarch64 target). Deps are bundled static, so the artifact is self-contained
-    # -- unlike the x86_64 build, whose mingw runtime DLLs the consumer supplies
-    # from MSYS2.
+    name: Build Windows (${{ matrix.arch }})
+    # Both arches cross-compiled on Linux with llvm-mingw, deps bundled static, so
+    # each artifact is self-contained -- no MSYS2 runtime DLLs for the consumer to
+    # provision. No Windows runner needed.
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: [x86_64, aarch64]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install nasm
+        run: sudo apt-get update && sudo apt-get install -y nasm
+
       - name: Build FFmpeg
-        run: ./build-windows-arm64.sh
+        run: ./build-windows.sh ${{ matrix.arch }}
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ffmpeg-windows-aarch64
-          path: dist/ffmpeg-windows-aarch64.zip
+          name: ffmpeg-windows-${{ matrix.arch }}
+          path: dist/ffmpeg-windows-${{ matrix.arch }}.zip
 
   build-ios:
     name: Build iOS (device + simulator)
@@ -151,7 +123,7 @@ jobs:
 
   release:
     name: Create Release
-    needs: [build-macos, build-linux, build-windows, build-windows-arm64, build-ios, build-android]
+    needs: [build-macos, build-linux, build-windows, build-ios, build-android]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
     permissions:

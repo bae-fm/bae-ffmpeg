@@ -53,11 +53,8 @@ FFmpeg anywhere.
 # Linux
 ./build-linux.sh x86_64  # or aarch64
 
-# Windows x86_64 (MSYS2, native)
-./build-windows.sh
-
-# Windows aarch64 (llvm-mingw, cross-compiled from Linux; deps bundled static)
-./build-windows-arm64.sh
+# Windows (llvm-mingw, cross-compiled from Linux; deps bundled static)
+./build-windows.sh x86_64  # or aarch64
 
 # iOS (device + simulator)
 ./build-ios.sh
