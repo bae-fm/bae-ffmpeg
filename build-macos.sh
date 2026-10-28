@@ -18,6 +18,7 @@ set -euo pipefail
 # The FFmpeg feature allowlist below is the canonical macOS/Windows set. Any
 # change must stay in sync with build-windows.sh / build-windows-arm64.sh.
 
+ROOT="$(cd "$(dirname "$0")" && pwd)"
 ARCH="${1:-$(uname -m)}"
 HOST_ARCH="$(uname -m)"
 FFMPEG_VERSION="${FFMPEG_VERSION:-8.1.2}"
@@ -198,23 +199,9 @@ if [[ -f bin/ffmpeg ]]; then
     rewrite_deps bin/ffmpeg
 fi
 
-# Verify the shipped dylibs import only system libraries + sibling libav*.
-# This is the proof that static bundling worked; keep it in CI output so a
-# regression (a Homebrew dylib creeping back in) is visible.
-echo "=== dylib load commands (expect only /usr/lib, /System, @rpath siblings) ==="
-leaked=0
-for dylib in lib/*.dylib bin/ffmpeg; do
-    [[ -f "$dylib" && ! -L "$dylib" ]] || continue
-    echo "--- $dylib ---"
-    otool -L "$dylib" | tail -n +2
-    if otool -L "$dylib" | tail -n +2 | grep -Eq '/opt/homebrew|/usr/local/opt|/usr/local/Cellar'; then
-        leaked=1
-    fi
-done
-if [[ "$leaked" == 1 ]]; then
-    echo "ERROR: a shipped binary still imports a Homebrew dylib -- not self-contained" >&2
-    exit 1
-fi
+# The shipped dylibs and ffmpeg must load only /usr/lib, /System and their
+# @rpath siblings.
+"$ROOT/verify-dist.sh" macos "$PREFIX"
 
 tar czf "$DIST/ffmpeg-macos-$ARCH.tar.gz" bin include lib
 

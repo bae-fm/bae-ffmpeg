@@ -42,6 +42,7 @@ OPUS_VERSION="1.5.2"
 
 echo "Building FFmpeg $FFMPEG_VERSION for Windows $ARCH (llvm-mingw $LLVM_MINGW_VERSION)"
 
+ROOT="$(cd "$(dirname "$0")" && pwd)"
 WORKDIR="$(pwd)/build"
 PREFIX="$WORKDIR/install-windows-$ARCH"   # FFmpeg install prefix (the artifact)
 DEPS="$WORKDIR/deps-windows-$ARCH"        # static third-party libs live here
@@ -239,11 +240,7 @@ done
 # mingw runtime DLL). This is the proof that static bundling worked; keep it in
 # CI output so a regression is visible.
 # ---------------------------------------------------------------------------
-echo "=== DLL import dependencies (expect only OS DLLs: KERNEL32, ucrtbase, ...) ==="
-for dll in "$PREFIX"/bin/*.dll; do
-    echo "--- $(basename "$dll") ---"
-    "${TRIPLE}-objdump" -p "$dll" | grep -i 'DLL Name' || true
-done
+OBJDUMP="${TRIPLE}-objdump" "$ROOT/verify-dist.sh" windows "$PREFIX"
 
 # ---------------------------------------------------------------------------
 # Package -- include/, lib/ (.dll.a + .def + pkgconfig), bin/ (.dll + .lib +

@@ -14,6 +14,7 @@ case "$(uname -s)" in
 esac
 TOOLCHAIN="$NDK/toolchains/llvm/prebuilt/$NDK_HOST_TAG"
 
+ROOT="$(cd "$(dirname "$0")" && pwd)"
 SRCDIR="$(pwd)/build"
 DIST="$(pwd)/dist"
 
@@ -119,6 +120,9 @@ build_arch() {
             -e 's,^includedir=.*,includedir=${prefix}/include,' "$pc" > "$pc.tmp" \
             && mv "$pc.tmp" "$pc"
     done
+
+    # The shipped libraries must need only Android's own and each other.
+    READELF="$TOOLCHAIN/bin/llvm-readelf" "$ROOT/verify-dist.sh" android "$prefix"
 
     # Package shared libs + headers
     cd "$prefix"

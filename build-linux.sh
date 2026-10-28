@@ -6,6 +6,7 @@ set -euo pipefail
 # each other -- no libmp3lame0/libopus0 package on the consumer's machine. This
 # matches build-macos.sh and build-windows.sh.
 
+ROOT="$(cd "$(dirname "$0")" && pwd)"
 ARCH="${1:-$(uname -m)}"
 FFMPEG_VERSION="${FFMPEG_VERSION:-8.1.2}"
 
@@ -161,6 +162,9 @@ done
 if [[ -f bin/ffmpeg ]]; then
     patchelf --set-rpath '$ORIGIN/../lib' bin/ffmpeg
 fi
+
+# The shipped libraries and ffmpeg must need only glibc, zlib and each other.
+"$ROOT/verify-dist.sh" linux "$PREFIX"
 
 tar czf "$DIST/ffmpeg-linux-$ARCH.tar.gz" bin include lib
 

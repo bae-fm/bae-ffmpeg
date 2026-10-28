@@ -33,16 +33,18 @@ Every platform and every build context (local dev, CI, release) links these
 same prebuilt artifacts at the same FFmpeg version — no system/Homebrew/MSYS2
 FFmpeg anywhere.
 
-## Usage in bae CI
+Each shipped library and program loads only its sibling FFmpeg libraries and
+the platform's own libraries. configure's autodetection is off, third-party
+codecs (lame, opus, and on Windows zlib) are linked in statically,
+and every build script runs `verify-dist.sh` on its output and fails if
+anything else is referenced.
 
-```yaml
-- name: Download bae-ffmpeg
-  run: |
-    curl -L https://github.com/bae-fm/bae-ffmpeg/releases/download/v8.1.2-bae4/ffmpeg-macos-arm64.tar.gz | \
-      tar xz -C /opt/bae-ffmpeg
-    echo "FFMPEG_DIR=/opt/bae-ffmpeg" >> $GITHUB_ENV
-    echo "PKG_CONFIG_PATH=/opt/bae-ffmpeg/lib/pkgconfig" >> $GITHUB_ENV
-```
+## Usage in bae
+
+bae pins one release in `scripts/bae-ffmpeg-release`. `scripts/setup-ffmpeg.sh`
+installs the macOS or Linux artifact, and `scripts/build-ffmpeg-ios.sh` /
+`scripts/build-ffmpeg-android.sh` the mobile ones; each checks the download
+before installing it and records the release it installed.
 
 ## Building locally
 
