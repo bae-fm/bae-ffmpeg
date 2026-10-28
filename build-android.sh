@@ -78,6 +78,9 @@ build_arch() {
         --disable-avfilter \
         --disable-network             `# no streaming support needed` \
         --disable-everything          `# start from zero, enable only what we need` \
+        --disable-autodetect          `# link no library the build host happens to have` \
+        --enable-pthreads \
+        --enable-zlib                 `# Android's own libz.so` \
         \
         --enable-protocol=file \
         --enable-demuxer=mp3,flac,ape,wav,mov,ipod,ogg,aiff,wv,dsf,iff \

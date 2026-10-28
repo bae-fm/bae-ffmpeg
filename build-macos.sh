@@ -107,8 +107,11 @@ fi
 # bae is an audio app -- no video codecs, filters, or devices needed.
 # NOTE: allowlist below MUST stay identical to build-windows.sh.
 #
-# --disable-xlib: an audio build has no business linking X11; FFmpeg otherwise
-# autodetects Homebrew's libX11 and links it into every dylib.
+# --disable-autodetect: configure otherwise links whatever it finds on the build
+# host -- Homebrew's libX11, libxcb, SDL2, liblzma -- plus VideoToolbox, which
+# an audio build never uses. Only what is enabled below is
+# linked: threads, and zlib from macOS itself. (iconv only converts subtitle
+# character sets, which no enabled decoder has.)
 ./configure \
     --prefix="$PREFIX" \
     --arch="$ARCH" \
@@ -123,8 +126,10 @@ fi
     \
     --disable-swscale             `# video scaling -- audio only` \
     --disable-network             `# no streaming support needed` \
-    --disable-xlib                `# audio only -- do not link X11` \
     --disable-everything          `# start from zero, enable only what we need` \
+    --disable-autodetect          `# link no library the build host happens to have` \
+    --enable-pthreads \
+    --enable-zlib \
     \
     --enable-protocol=file \
     --enable-demuxer=mp3,flac,ape,wav,mov,ipod,ogg,aiff,wv,dsf,iff \

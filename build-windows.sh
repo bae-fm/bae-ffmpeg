@@ -6,7 +6,7 @@ set -euo pipefail
 #   ./build-windows.sh x86_64
 #   ./build-windows.sh aarch64
 #
-# Both arches are built the same way: third-party deps (lame/opus/iconv/zlib) are
+# Both arches are built the same way: third-party deps (lame/opus/zlib) are
 # built from source as STATIC libraries and linked into FFmpeg's DLLs, and
 # `-static` folds the llvm-mingw C runtime in too, so the shipped DLLs import only
 # OS libraries (ucrtbase, kernel32, ...) plus their sibling FFmpeg DLLs. The
@@ -39,7 +39,6 @@ LLVM_MINGW_ASSET="llvm-mingw-${LLVM_MINGW_VERSION}-ucrt-ubuntu-22.04-x86_64"
 ZLIB_VERSION="1.3.1"
 LAME_VERSION="3.100"
 OPUS_VERSION="1.5.2"
-ICONV_VERSION="1.17"
 
 echo "Building FFmpeg $FFMPEG_VERSION for Windows $ARCH (llvm-mingw $LLVM_MINGW_VERSION)"
 
@@ -115,17 +114,6 @@ if [[ ! -f "$DEPS/lib/libz.a" ]]; then
     cp "$WORKDIR/zlib-$ZLIB_VERSION/zlib.h" "$WORKDIR/zlib-$ZLIB_VERSION/zconf.h" "$DEPS/include/"
 fi
 
-# libiconv: FFmpeg links -liconv for metadata charset conversion.
-if [[ ! -f "$DEPS/lib/libiconv.a" ]]; then
-    echo "=== libiconv $ICONV_VERSION (static) ==="
-    fetch "https://ftp.gnu.org/pub/gnu/libiconv/libiconv-$ICONV_VERSION.tar.gz"
-    tar xzf "$WORKDIR/libiconv-$ICONV_VERSION.tar.gz" -C "$WORKDIR"
-    ( cd "$WORKDIR/libiconv-$ICONV_VERSION" \
-        && ./configure --host="$TRIPLE" --prefix="$DEPS" \
-            --enable-static --disable-shared \
-        && make -j"$JOBS" && make install )
-fi
-
 # libmp3lame: FFmpeg links -lmp3lame (check_lib, no pkg-config).
 if [[ ! -f "$DEPS/lib/libmp3lame.a" ]]; then
     echo "=== lame $LAME_VERSION (static) ==="
@@ -190,6 +178,9 @@ export PKG_CONFIG_LIBDIR="$DEPS/lib/pkgconfig"
     --disable-swscale             `# video scaling -- audio only` \
     --disable-network             `# no streaming support needed` \
     --disable-everything          `# start from zero, enable only what we need` \
+    --disable-autodetect          `# link no library the build host happens to have` \
+    --enable-w32threads \
+    --enable-zlib                 `# the static zlib built above` \
     \
     --enable-protocol=file \
     --enable-demuxer=mp3,flac,ape,wav,mov,ipod,ogg,aiff,wv,dsf,iff \

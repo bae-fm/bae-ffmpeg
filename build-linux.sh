@@ -14,14 +14,14 @@ if [[ "$ARCH" == "aarch64" && "$(uname -m)" != "aarch64" ]]; then
         -w /work \
         -e FFMPEG_VERSION="$FFMPEG_VERSION" \
         ubuntu:22.04 \
-        bash -c "apt-get update && apt-get install -y build-essential curl xz-utils pkg-config nasm libmp3lame-dev libopus-dev && ./build-linux.sh aarch64"
+        bash -c "apt-get update && apt-get install -y build-essential curl xz-utils pkg-config nasm libmp3lame-dev libopus-dev zlib1g-dev && ./build-linux.sh aarch64"
     exit 0
 fi
 
 # Install build dependencies (skip if inside Docker - already installed)
 if command -v apt-get &>/dev/null && [[ ! -f /.dockerenv ]]; then
     sudo apt-get update
-    sudo apt-get install -y build-essential nasm pkg-config libmp3lame-dev libopus-dev
+    sudo apt-get install -y build-essential nasm pkg-config libmp3lame-dev libopus-dev zlib1g-dev
 fi
 
 WORKDIR="$(pwd)/build"
@@ -40,6 +40,13 @@ cd "ffmpeg-$FFMPEG_VERSION"
 
 # Audio-only FFmpeg with minimal footprint.
 # bae is an audio app -- no video codecs, filters, or devices needed.
+#
+# --disable-autodetect: configure otherwise links whatever the build host has
+# installed (ALSA, libxcb, SDL2, liblzma, VAAPI, ...), and silently leaves out
+# what it lacks: the aarch64 container had no zlib headers, so that dist alone
+# built without zlib. Only what is enabled below is linked, and a missing one
+# fails: threads, and zlib, which glibc systems provide. (iconv only converts
+# subtitle character sets, which no enabled decoder has.)
 ./configure \
     --prefix="$PREFIX" \
     \
@@ -51,6 +58,9 @@ cd "ffmpeg-$FFMPEG_VERSION"
     --disable-swscale             `# video scaling -- audio only` \
     --disable-network             `# no streaming support needed` \
     --disable-everything          `# start from zero, enable only what we need` \
+    --disable-autodetect          `# link no library the build host happens to have` \
+    --enable-pthreads \
+    --enable-zlib \
     \
     --enable-protocol=file \
     --enable-demuxer=mp3,flac,ape,wav,mov,ipod,ogg,aiff,wv,dsf,iff \

@@ -34,6 +34,12 @@ COMMON_FLAGS=(
     --disable-swscale                 # video scaling -- audio only
     --disable-network                 # no streaming support needed
     --disable-everything              # start from zero, enable only what we need
+    # Link no library the build host happens to have: configure otherwise
+    # probes the SDK and the host for every autodetected library. Only threads,
+    # and zlib from iOS itself, which the app links.
+    --disable-autodetect
+    --enable-pthreads
+    --enable-zlib
 
     --enable-protocol=file
     --enable-demuxer=mp3,flac,ape,wav,mov,ipod,ogg,aiff,wv,dsf,iff
