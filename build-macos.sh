@@ -180,9 +180,14 @@ rewrite_deps() {
     done
 }
 
+# Each dylib keeps the name FFmpeg gave it, its major-version link
+# (libavcodec.62.dylib), which is also the name its siblings load it by. Naming
+# it by the full-version file instead made a consumer link one name while the
+# siblings loaded the other, and a bundler that copied both shipped two images
+# of the same library.
 for dylib in lib/*.dylib; do
     if [[ -f "$dylib" && ! -L "$dylib" ]]; then
-        install_name_tool -id "@rpath/$(basename "$dylib")" "$dylib"
+        install_name_tool -id "@rpath/$(basename "$(otool -D "$dylib" | tail -n 1)")" "$dylib"
         rewrite_deps "$dylib"
     fi
 done
